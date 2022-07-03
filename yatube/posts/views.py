@@ -138,10 +138,12 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     """Шаблон подписывания на автора"""
-    if request.user != User.objects.get(username=username) and not Follow.objects.filter(
-        user=request.user, author=User.objects.get(username=username)).exists():
+    if request.user != User.objects.get(
+        username=username) and not Follow.objects.filter(
+            user=request.user, author=User.objects.get(
+                username=username)).exists():
         Follow(user=request.user,
-            author=User.objects.get(username=username)).save()
+               author=User.objects.get(username=username)).save()
         return redirect('posts:profile', username=username)
     return redirect('posts:index')
 

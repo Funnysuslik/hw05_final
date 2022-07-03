@@ -109,7 +109,7 @@ class PostsContextTests(TestCase):
     def test_post_detail_page_have_correct_context(self):
         """Шаблон post_detail сформирован с правильным контекстом."""
         response = self.guest.get(reverse('posts:post_detail',
-                                           kwargs={'post_id': 15}))
+                                          kwargs={'post_id': 15}))
         post = response.context.get('post')
         self.assert_context_check(post)
 
@@ -131,7 +131,7 @@ class PostsContextTests(TestCase):
     def test_group_list_have_correct_context(self):
         """Шаблон group_list сформирован с правильным контекстом."""
         response = self.guest.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'}))
+                                          kwargs={'slug': 'test_group'}))
         first_object = response.context['page_obj'][0]
         self.assert_context_check(first_object)
         group = response.context['group']
@@ -143,19 +143,19 @@ class PostsContextTests(TestCase):
     def test_group_list_paginator_working(self):
         """Проверка работы пагинатора group_list"""
         response = self.guest.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'}))
+                                          kwargs={'slug': 'test_group'}))
         self.assertEqual(len(response.context['page_obj']), MAX_POSTS_ON_PAGE)
 
         response = self.guest.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'})
-                                   + '?page=2')
+                                          kwargs={'slug': 'test_group'})
+                                  + '?page=2')
         self.assertEqual(len(response.context['page_obj']),
                          PostsContextTests.EXTRA_POSTS)
 
     def test_profile_have_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом."""
         response = self.authorized_client.get(reverse('posts:profile',
-                                           kwargs={'username': 'TestUser'}))
+                                              kwargs={'username': 'TestUser'}))
         first_object = response.context['page_obj'][0]
         self.assert_context_check(first_object)
         author = response.context['author']
@@ -165,12 +165,12 @@ class PostsContextTests(TestCase):
     def test_profile_paginator_working(self):
         """Проверка работы пагинатора profile"""
         response = self.authorized_client.get(reverse('posts:profile',
-                                           kwargs={'username': 'TestUser'}))
+                                              kwargs={'username': 'TestUser'}))
         self.assertEqual(len(response.context['page_obj']), MAX_POSTS_ON_PAGE)
 
         response = self.authorized_client.get(reverse('posts:profile',
-                                           kwargs={'username': 'TestUser'})
-                                   + '?page=2')
+                                              kwargs={'username': 'TestUser'})
+                                              + '?page=2')
         self.assertEqual(len(response.context['page_obj']),
                          PostsContextTests.EXTRA_POSTS)
 
