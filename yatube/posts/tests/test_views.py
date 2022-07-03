@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
 from django import forms
+from django.core.cache import cache
 
 from posts.models import Post, Group, Follow
 from posts.constants import MAX_POSTS_ON_PAGE
@@ -45,6 +46,7 @@ class PostsTemplatesTests(TestCase):
         }
         for reverse_name, template in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
+                cache.clear()
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
 

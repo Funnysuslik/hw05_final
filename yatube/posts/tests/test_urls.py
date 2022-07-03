@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
+from django.core.cache import cache
 
 from posts.models import Post, Group
 
@@ -27,7 +28,7 @@ class PostsURLTests(TestCase):
         )
 
     def setUp(self):
-        self.guest = Client()
+        self.client = Client()
         self.fake_client = Client()
         self.fake_client.force_login(PostsURLTests.fake_user)
         self.authorized_client = Client()
@@ -56,9 +57,10 @@ class PostsURLTests(TestCase):
             '/profile/TestUser/': 'posts/profile.html',
             '/posts/1/': 'posts/post_detail.html',
         }
+        cache.clear()
         for address, template in templates_url_names.items():
             with self.subTest(address=address):
-                response = self.guest.get(address)
+                response = self.client.get(address)
                 self.assertTemplateUsed(
                     response,
                     template,
@@ -81,7 +83,7 @@ class PostsURLTests(TestCase):
         ]
         for address in templates_url_names_not_auth:
             with self.subTest(address=address):
-                response = self.guest.get(address)
+                response = self.client.get(address)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_auth_user_url_exists_at_desired_location(self):
