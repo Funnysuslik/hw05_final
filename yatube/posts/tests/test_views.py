@@ -64,7 +64,7 @@ class PostsContextTests(TestCase):
         cls.EXTRA_POSTS = 5
         for i in range(MAX_POSTS_ON_PAGE + PostsContextTests.EXTRA_POSTS):
             Post.objects.create(
-                text=f'Тестовый текст{i}',
+                text=f'Тестовый текст {i}',
                 author=cls.user,
                 group=cls.test_group,
             )
@@ -117,12 +117,14 @@ class PostsContextTests(TestCase):
 
     def test_index_page_have_correct_context(self):
         """Шаблон index сформирован с правильным контекстом."""
+        cache.clear()
         response = self.guest.get(reverse('posts:index'))
         first_object = response.context['page_obj'][0]
         self.assert_context_check(first_object)
 
     def test_index_paginator_working(self):
         """Проверка работы пагинатора index"""
+        cache.clear()
         response = self.guest.get(reverse('posts:index'))
         self.assertEqual(len(response.context['page_obj']), MAX_POSTS_ON_PAGE)
 
@@ -180,11 +182,15 @@ class PostsContextTests(TestCase):
         """Проверка работы кэширования.
         При удалении поста, он не пропадает со страницы
         до обновления кэша"""
+        cache.clear()
+        test_post = Post.objects.create(text='Тестовый текст для кэша',
+                                        author=PostsContextTests.user,
+                                        group=PostsContextTests.test_group,)
         response = self.guest.get(reverse('posts:index'))
-        self.assertContains(response, 'Тестовый текст 15')
+        self.assertContains(response, test_post.text)
         Post.objects.filter(pk=15).delete()
         response = self.guest.get(reverse('posts:index'))
-        self.assertContains(response, 'Тестовый текст 15')
+        self.assertContains(response, test_post.text)
 
 
 class PostsNewPostTest(TestCase):
@@ -220,7 +226,7 @@ class PostsNewPostTest(TestCase):
         test_post = Post.objects.create(text='Тестовый текст',
                                         author=PostsContextTests.user,
                                         group=PostsContextTests.test_group,)
-
+        cache.clear()
         response = self.client.get(reverse('posts:index'))
         first_object = response.context['page_obj'][0]
         self.assertEqual(first_object.pk, test_post.pk)
