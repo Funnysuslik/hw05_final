@@ -77,6 +77,7 @@ def add_comment(request, post_id):
         comment.author = request.user
         comment.post = post
         comment.save()
+
     return redirect('posts:post_detail', post_id=post_id)
 
 
@@ -110,6 +111,7 @@ def post_edit(request, post_id):
                     instance=post)
     if request.method == 'POST' and form.is_valid():
         form.save()
+
         return redirect('posts:post_detail', post_id)
 
     context = {
@@ -132,26 +134,33 @@ def follow_index(request):
     context = {
         'page_obj': page_obj,
     }
+
     return render(request, template, context)
 
 
 @login_required
 def profile_follow(request, username):
     """Шаблон подписывания на автора"""
-    if request.user != User.objects.get(
-        username=username) and not Follow.objects.filter(
-            user=request.user, author=User.objects.get(
-                username=username)).exists():
-        Follow(user=request.user,
-               author=User.objects.get(username=username)).save()
+    current_author = get_object_or_404(User, username=username)
+    if request.user != current_author and not Follow.objects.filter(
+            user=request.user, author=current_author).exists():
+        Follow(
+            user=request.user,
+            author=current_author
+        ).save()
+
         return redirect('posts:profile', username=username)
+
     return redirect('posts:index')
 
 
 @login_required
 def profile_unfollow(request, username):
     """Шаблон отписывания от автора"""
-    unfollow = Follow.objects.get(user=request.user,
-                                  author=User.objects.get(username=username))
-    unfollow.delete()
+    current_author = get_object_or_404(User, username=username)
+    Follow.objects.get(
+        user=request.user,
+        author=current_author
+    ).delete()
+
     return redirect('posts:profile', username=username)
