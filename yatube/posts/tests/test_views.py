@@ -109,8 +109,9 @@ class PostsContextTests(TestCase):
 
     def test_post_detail_page_have_correct_context(self):
         """Шаблон post_detail сформирован с правильным контекстом."""
-        response = self.client.get(reverse('posts:post_detail',
-                                           kwargs={'post_id': 1}))
+        response = self.client.get(
+            reverse('posts:post_detail',
+                    kwargs={'post_id': self.last_post.pk}))
         post = response.context.get('post')
         self.assert_context_check(post)
 
