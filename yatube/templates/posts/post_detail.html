@@ -40,7 +40,7 @@
       {{ post.text|linebreaks }}
     </p>
     {% include 'posts/includes/comment.html' %}
-    {% if author == auth.User %}
+    {% if author == request.user %}
       <a class="nav-link active" href="{% url 'posts:post_edit' post.pk%}">Редактировать</a>
     {% endif %}
   </article>

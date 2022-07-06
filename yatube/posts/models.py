@@ -27,10 +27,11 @@ class Post(models.Model):
     image = models.ImageField(
         'Картинка',
         upload_to='posts/',
-        blank=True
+        blank=True,
     )
 
     class Meta:
+
         ordering = ('-pub_date',)
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
@@ -41,6 +42,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     """Модель коментариев к постам"""
+
     post = models.ForeignKey(
         'Post',
         on_delete=models.CASCADE,
@@ -55,6 +57,7 @@ class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+
         ordering = ('-created',)
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'

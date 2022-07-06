@@ -25,12 +25,11 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_attributes(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        group = PostModelTest.group
-        post = PostModelTest.post
+        group = self.group
+        post = self.post
         expected_objects = {
             group.title: str(group),
             post.text[:N_SYMBOLS_TO_SHOW]: str(post),
-            post._meta.verbose_name: 'Post',
         }
         for obj_attribute, exp_attribute in expected_objects.items():
             with self.subTest(obj_attribute=obj_attribute):

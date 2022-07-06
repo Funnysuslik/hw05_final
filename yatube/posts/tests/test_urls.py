@@ -22,17 +22,15 @@ class PostsURLTests(TestCase):
         )
         Post.objects.create(
             text='Тестовый текст',
-            pub_date='01-01-2001',
             author=cls.user,
             group=cls.test_group,
         )
 
     def setUp(self):
-        self.client = Client()
         self.fake_client = Client()
-        self.fake_client.force_login(PostsURLTests.fake_user)
+        self.fake_client.force_login(self.fake_user)
         self.authorized_client = Client()
-        self.authorized_client.force_login(PostsURLTests.user)
+        self.authorized_client.force_login(self.user)
 
     def test_correct_template_auth_author(self):
         """Тeст на использование правльного шаблна html"""

@@ -7,7 +7,7 @@ from .models import Post, Group, Comment, Follow
 class PostAdmin(admin.ModelAdmin):
     """Модель БД для постов."""
 
-    list_display = ('pk', 'text', 'pub_date', 'author', 'group')
+    list_display = ('pk', 'text', 'image', 'pub_date', 'author', 'group')
     list_editable = ('group',)
     search_fields = ('text',)
     list_filter = ('pub_date',)
@@ -26,6 +26,7 @@ class GroupAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     """Модель БД для комментариев"""
+
     list_display = ('author', 'post', 'created')
     search_fields = ('author',)
     empty_value_display = '-пусто-'
@@ -34,6 +35,7 @@ class CommentAdmin(admin.ModelAdmin):
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
     """Модель БД для подписок"""
+
     list_display = ('pk', 'user', 'author')
     search_fields = ('user',)
     empty_value_display = '-пусто-'
