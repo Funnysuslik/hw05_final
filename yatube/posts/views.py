@@ -84,7 +84,7 @@ def add_comment(request, post_id):
 def post_create(request):
     """Шаблон для  страницы создания поста"""
     template = 'posts/create_post.html'
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         post = form.save(commit=False)
         post.author = request.user

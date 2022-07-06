@@ -67,7 +67,6 @@ class PostsFormsTests(TestCase):
             data=form_data,
             follow=True,
         )
-
         self.assertRedirects(response,
                              reverse('posts:profile',
                                      kwargs={'username': self.user.username}))
