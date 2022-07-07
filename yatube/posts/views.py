@@ -69,8 +69,7 @@ def post_detail(request, post_id):
 @login_required
 def add_comment(request, post_id):
     """Шаблон коментирования"""
-    post = get_object_or_404(Post.objects.select_related(
-        'group', 'author'), pk=post_id)
+    post = get_object_or_404(Post.objects, pk=post_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
@@ -158,7 +157,7 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     """Шаблон отписывания от автора"""
     current_author = get_object_or_404(User, username=username)
-    Follow.objects.get(
+    Follow.objects.filter(
         user=request.user,
         author=current_author
     ).delete()

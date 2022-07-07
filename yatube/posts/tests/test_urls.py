@@ -20,7 +20,7 @@ class PostsURLTests(TestCase):
             slug='test_group',
             description='Test group',
         )
-        Post.objects.create(
+        cls.test_post = Post.objects.create(
             text='Тестовый текст',
             author=cls.user,
             group=cls.test_group,
@@ -75,9 +75,9 @@ class PostsURLTests(TestCase):
         """Тест на доступность страниц неавторизованому клиенту"""
         templates_url_names_not_auth = [
             '/',
-            '/group/test_group/',
-            '/profile/TestUser/',
-            '/posts/1/',
+            f'/group/{self.test_group.slug}/',
+            f'/profile/{self.user.username}/',
+            f'/posts/{self.test_post.pk}/',
         ]
         for address in templates_url_names_not_auth:
             with self.subTest(address=address):
@@ -88,7 +88,7 @@ class PostsURLTests(TestCase):
         """Тест на доступность страниц авторизованому автору"""
         templates_url_names_auth = [
             '/create/',
-            '/posts/1/edit/',
+            f'/posts/{self.test_post.pk}/edit/',
         ]
         for address in templates_url_names_auth:
             with self.subTest(address=address):
@@ -99,8 +99,8 @@ class PostsURLTests(TestCase):
         """Тест НЕдоступности страниц гостю"""
         templates_url_names_auth = [
             '/create/',
-            '/posts/1/edit/',
-            '/posts/1/comment/'
+            f'/posts/{self.test_post.pk}/edit/',
+            f'/posts/{self.test_post.pk}/comment/',
         ]
         for address in templates_url_names_auth:
             with self.subTest(address=address):
@@ -113,7 +113,7 @@ class PostsURLTests(TestCase):
         авторизации из недоступных ему страниц"""
         templates_url_names_auth = [
             '/create/',
-            '/posts/1/edit/',
+            f'/posts/{self.test_post.pk}/edit/',
         ]
         for address in templates_url_names_auth:
             with self.subTest(address=address):
@@ -123,5 +123,6 @@ class PostsURLTests(TestCase):
     def test_not_author_redirect_post_edit(self):
         """Тест перенаправления на другую страницу
         при попытке редактирования поста не автором"""
-        self.assertRedirects(self.fake_client.get('/posts/1/edit/'),
-                             '/posts/1/')
+        self.assertRedirects(
+            self.fake_client.get(f'/posts/{self.test_post.pk}/edit/'),
+            f'/posts/{self.test_post.pk}/')

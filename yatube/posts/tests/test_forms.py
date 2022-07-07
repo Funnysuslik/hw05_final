@@ -108,12 +108,14 @@ class PostsFormsTests(TestCase):
             'text': 'Тестовый текст из формы был изменён',
         }
         response = self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': 1}),
+            reverse('posts:post_edit', kwargs={'post_id': self.test_post.pk}),
             data=form_data,
             follow=True,
         )
-        self.assertRedirects(response, reverse('posts:post_detail',
-                                               kwargs={'post_id': 1}))
+        self.assertRedirects(
+            response, reverse(
+                'posts:post_detail',
+                kwargs={'post_id': self.test_post.pk}))
         self.assertEqual(Post.objects.count(), tasks_count)
         self.assertEqual(
             Post.objects.get(pk=1).text, form_data['text'])
@@ -125,12 +127,17 @@ class PostsFormsTests(TestCase):
             'text': 'New comment',
         }
         response = self.authorized_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': 1}),
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': self.test_post.pk}),
             data=form_data,
             follow=True,
         )
-        self.assertRedirects(response, reverse('posts:post_detail',
-                                               kwargs={'post_id': 1}))
+        self.assertRedirects(
+            response,
+            reverse(
+                'posts:post_detail',
+                kwargs={'post_id': self.test_post.pk}))
         self.assertEqual(
             Comment.objects.first().text, form_data['text']
         )
@@ -142,7 +149,9 @@ class PostsFormsTests(TestCase):
             'text': 'Shoudnt appear'
         }
         self.client.post(
-            reverse('posts:add_comment', kwargs={'post_id': 1}),
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': self.test_post.pk}),
             data=form_data,
         )
         self.assertIsNone(Comment.objects.first())

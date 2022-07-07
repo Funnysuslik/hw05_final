@@ -1,3 +1,4 @@
+from xmlrpc.client import Boolean
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -20,7 +21,7 @@ class PostsTemplatesTests(TestCase):
             slug='test_group',
             description='Test group',
         )
-        Post.objects.create(
+        cls.test_post = Post.objects.create(
             text='Тестовый текст',
             author=cls.user,
             group=cls.test_group,
@@ -35,13 +36,17 @@ class PostsTemplatesTests(TestCase):
         templates_pages_names = {
             reverse('posts:index'): 'posts/index.html',
             reverse('posts:group_list',
-                    kwargs={'slug': 'test_group'}): 'posts/group_list.html',
+                    kwargs={'slug': self.test_group.slug}
+                    ): 'posts/group_list.html',
             reverse('posts:profile',
-                    kwargs={'username': 'TestUser'}): 'posts/profile.html',
+                    kwargs={'username': self.user.username}
+                    ): 'posts/profile.html',
             reverse('posts:post_detail',
-                    kwargs={'post_id': 1}): 'posts/post_detail.html',
+                    kwargs={'post_id': self.test_post.pk}
+                    ): 'posts/post_detail.html',
             reverse('posts:post_edit',
-                    kwargs={'post_id': 1}): 'posts/create_post.html',
+                    kwargs={'post_id': self.test_post.pk}
+                    ): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
         }
         for reverse_name, template in templates_pages_names.items():
@@ -95,8 +100,10 @@ class PostsContextTests(TestCase):
 
     def test_post_edit_have_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse('posts:post_edit',
-                                                      kwargs={'post_id': 1}))
+        response = self.authorized_client.get(
+            reverse('posts:post_edit',
+                    kwargs={'post_id': self.last_post.pk}))
+        self.assertIsInstance(response.context['is_edit'], Boolean)
         self.assertTrue(response.context['is_edit'])
         form_fields = {
             'text': forms.fields.CharField,
@@ -134,8 +141,9 @@ class PostsContextTests(TestCase):
 
     def test_group_list_have_correct_context(self):
         """Шаблон group_list сформирован с правильным контекстом."""
-        response = self.client.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'}))
+        response = self.client.get(
+            reverse('posts:group_list',
+                    kwargs={'slug': self.test_group.slug}))
         first_object = response.context['page_obj'][0]
         self.assert_context_check(first_object)
         group = response.context['group']
@@ -146,20 +154,23 @@ class PostsContextTests(TestCase):
 
     def test_group_list_paginator_working(self):
         """Проверка работы пагинатора group_list"""
-        response = self.client.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'}))
+        response = self.client.get(
+            reverse('posts:group_list',
+                    kwargs={'slug': self.test_group.slug}))
         self.assertEqual(len(response.context['page_obj']), MAX_POSTS_ON_PAGE)
 
-        response = self.client.get(reverse('posts:group_list',
-                                           kwargs={'slug': 'test_group'})
-                                   + '?page=2')
+        response = self.client.get(
+            reverse('posts:group_list',
+                    kwargs={'slug': self.test_group.slug})
+            + '?page=2')
         self.assertEqual(len(response.context['page_obj']),
                          self.EXTRA_POSTS)
 
     def test_profile_have_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse('posts:profile',
-                                              kwargs={'username': 'TestUser'}))
+        response = self.authorized_client.get(
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username}))
         first_object = response.context['page_obj'][0]
         self.assert_context_check(first_object)
         author = response.context['author']
@@ -168,13 +179,15 @@ class PostsContextTests(TestCase):
 
     def test_profile_paginator_working(self):
         """Проверка работы пагинатора profile"""
-        response = self.authorized_client.get(reverse('posts:profile',
-                                              kwargs={'username': 'TestUser'}))
+        response = self.authorized_client.get(
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username}))
         self.assertEqual(len(response.context['page_obj']), MAX_POSTS_ON_PAGE)
 
-        response = self.authorized_client.get(reverse('posts:profile',
-                                              kwargs={'username': 'TestUser'})
-                                              + '?page=2')
+        response = self.authorized_client.get(
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username})
+            + '?page=2')
         self.assertEqual(len(response.context['page_obj']),
                          self.EXTRA_POSTS)
 
@@ -185,10 +198,10 @@ class PostsContextTests(TestCase):
         cache.clear()
         test_post = Post.objects.create(text='Тестовый текст для кэша',
                                         author=self.user,
-                                        group=self.test_group,)
+                                        group=self.test_group)
         response = self.client.get(reverse('posts:index'))
         self.assertContains(response, test_post.text)
-        Post.objects.first().delete()
+        test_post.delete()
         response = self.client.get(reverse('posts:index'))
         self.assertContains(response, test_post.text)
         cache.clear()
@@ -225,7 +238,7 @@ class PostsNewPostTest(TestCase):
         """Пост с группой появляется на главной странице сайта"""
         test_post = Post.objects.create(text='Тестовый текст',
                                         author=self.user,
-                                        group=self.test_group,)
+                                        group=self.test_group)
         cache.clear()
         response = self.client.get(reverse('posts:index'))
         first_object = response.context['page_obj'][0]
@@ -235,7 +248,7 @@ class PostsNewPostTest(TestCase):
         """Пост с группой появляется на странице профайла пользователя"""
         test_post = Post.objects.create(text='Тестовый текст',
                                         author=self.user,
-                                        group=self.test_group,)
+                                        group=self.test_group)
         response = self.client.get(
             reverse('posts:profile',
                     kwargs={'username': self.user.username}))
@@ -246,7 +259,7 @@ class PostsNewPostTest(TestCase):
         """Пост с группой появляется на странице выбранной группы"""
         test_post = Post.objects.create(text='Тестовый текст',
                                         author=self.user,
-                                        group=self.test_group,)
+                                        group=self.test_group)
         response = self.client.get(
             reverse('posts:group_list',
                     kwargs={'slug': self.test_group.slug}))
@@ -257,7 +270,7 @@ class PostsNewPostTest(TestCase):
         """Пост с группой не появляется на странице другой группы"""
         test_post = Post.objects.create(text='Тестовый текст',
                                         author=self.user,
-                                        group=self.test_group,)
+                                        group=self.test_group)
         response = self.client.get(
             reverse('posts:group_list',
                     kwargs={'slug': self.fake_group.slug}))
