@@ -1,4 +1,3 @@
-from xmlrpc.client import Boolean
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -103,7 +102,7 @@ class PostsContextTests(TestCase):
         response = self.authorized_client.get(
             reverse('posts:post_edit',
                     kwargs={'post_id': self.last_post.pk}))
-        self.assertIsInstance(response.context['is_edit'], Boolean)
+        self.assertIsInstance(response.context['is_edit'], bool)
         self.assertTrue(response.context['is_edit'])
         form_fields = {
             'text': forms.fields.CharField,

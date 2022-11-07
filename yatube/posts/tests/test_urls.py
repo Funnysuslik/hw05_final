@@ -35,7 +35,7 @@ class PostsURLTests(TestCase):
     def test_correct_template_auth_author(self):
         """Тeст на использование правльного шаблна html"""
         templates_url_names = {
-            '/posts/1/edit/': 'posts/create_post.html',
+            f'/posts/{self.test_post.pk}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
         }
         for address, template in templates_url_names.items():
@@ -51,9 +51,9 @@ class PostsURLTests(TestCase):
         """Тeст на использование правльного шаблна html"""
         templates_url_names = {
             '/': 'posts/index.html',
-            '/group/test_group/': 'posts/group_list.html',
-            '/profile/TestUser/': 'posts/profile.html',
-            '/posts/1/': 'posts/post_detail.html',
+            f'/group/{self.test_group.slug}/': 'posts/group_list.html',
+            f'/profile/{self.user.username}/': 'posts/profile.html',
+            f'/posts/{self.test_post.pk}/': 'posts/post_detail.html',
         }
         cache.clear()
         for address, template in templates_url_names.items():

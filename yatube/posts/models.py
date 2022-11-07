@@ -97,3 +97,7 @@ class Follow(models.Model):
 
         verbose_name = 'Follow'
         verbose_name_plural = 'Follows'
+
+        constraints = [
+            models.CheckConstraint(check=models.Q())
+        ]
